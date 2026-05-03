@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    
+    <style>
+        
+        /* 1. 引入手写体 Special Elite */
+        @font-face {
+            font-family: 'Special Elite';
+            src: url('fonts/SpecialElite-Regular.ttf') format('truetype');
+        }
+
+        /* 2. 引入 Inter 字体 细体*/
+        @font-face {
+            font-family: 'Inter';
+            src: url('fonts/Inter_24pt-Light.ttf') format('truetype');
+
+        }
+
+        /* 3. 引入思源宋体 Noto Serif SC 细体300*/
+        @font-face {
+            font-family: 'Noto Serif SC';
+            src: url('fonts/NotoSerifSC-Light.ttf') format('truetype');
+    
+        }
+        
+        /* 4. 引入黑体 Noto Sans SC 细体*/
+        @font-face {
+            font-family: 'Noto Sans SC';
+            src: url('fonts/NotoSansSC-Light.ttf') format('truetype');
+            font-weight: 300; /* 对应 CSS 里的 300 或 light */
+
+        }
+
+        /* 5. 引入黑体 Noto Sans SC 正常体*/
+        @font-face {
+            font-family: 'Noto Sans SC';
+            src: url('fonts/NotoSansSC-Regular.ttf') format('truetype');
+            font-weight: 400; /* 对应常规正文 */
+
+        }
+        
+        
+        :root { --bg-color: #fffdfb; }
+
+        html {
+            background-color: var(--bg-color);
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto; 
+            scroll-behavior: smooth;
+        }
+        body {
+            margin: 0; padding: 0;
+            font-family: "PingFang SC", "STHeiti", sans-serif;
+            background-color: var(--bg-color);
+            width: 100%;
+        }
+
+        /* 导航 */
+        nav { position: fixed; top: 35px; left: 55px; z-index: 10000; }
+        nav a {
+            display: block; text-decoration: none; color: #4A4A4A; 
+            font-size: 12.8px; letter-spacing: 2px; margin-bottom: 28px;
+            line-height: 1; transition: 0.3s;
+        }
+        nav a:hover { color: #000; }
+        nav a span { font-size: 10px; margin-left: 6px; opacity: 0.45; font-weight: normal; letter-spacing: 1px;}
+
+        /* 主包装器 */
+        #main-wrapper {
+            width: 1366px; 
+            position: absolute; 
+            left: 50%;
+            transform: translateX(-50%); 
+            transform-origin: top center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 第一屏 */
+        #stage {
+            width: 1366px; height: 768px;
+            position: relative; overflow: hidden;
+            flex-shrink: 0;
+        }
+        #base-layer { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+
+        .dynamic-element { 
+            position: absolute; z-index: 10; cursor: pointer; 
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        #music-note { width: 62px; left: 85px; top: 250px; transform: rotate(-7.2deg); }
+        #music-note:hover { transform: rotate(10deg) scale(1.15); }
+        #avatar { width: 132px; left: 915px; top: 200px; }
+        #avatar:hover { transform: translateY(-12px) scale(1.05); }
+        #portfolio-text { width: 238px; left: 1070px; top: 552px; }
+        #portfolio-text:hover { transform: scale(1.03); opacity: 0.8; }
+
+        /* 时钟 */
+        .clock-section { 
+            position: absolute; top: 35px; right: 55px; 
+            display: flex; flex-direction: column; align-items: center; 
+            z-index: 20; opacity: 0.54; transition: opacity 0.3s;
+        }
+        .clock-section:hover { opacity: 1; }
+        #clock { width: 74px; height: 74px; position: relative; margin-bottom: 20px; }
+        .tick { position: absolute; width: 1px; height: 6px; background: #d8d6d6; left: 50%; transform-origin: 50% 37px; }
+        .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; border-radius: 2px; background: #a5a5a5; transform: translateX(-50%); }
+        .hour { width: 2.5px; height: 26%; }
+        .min { width: 2px; height: 34%; }
+        .sec { width: 1px; height: 36%; background: #DDD; }
+        #date-display { font-size: 12px; color: #9a9898; font-family: "Courier New", monospace; letter-spacing: 1.5px; transform: scale(0.92); }
+
+        /* 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.2); 
+            z-index: 99999;
+            backdrop-filter: blur(18px); 
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .modal-content {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 65%; 
+            max-width: 1100px; 
+            height: 82vh;
+            background: rgba(255, 255, 255, 0.82); 
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 40px 120px rgba(0,0,0,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            animation: modalFadeIn 0.4s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translate(-50%, -48%) scale(0.98); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .close-button {
+            position: absolute;
+            top: 40px; right: 40px;
+            cursor: pointer;
+            z-index: 101;
+            color: #4A4A4A;
+            transition: 0.3s;
+        }
+        .close-button:hover { color: #000; transform: rotate(90deg); }
+
+        .modal-scroll-area {
+            height: 100%;
+            overflow-y: auto;
+            padding: 60px 10%; 
+            box-sizing: border-box;
+        }
+
+        .modal-scroll-area::-webkit-scrollbar { width: 12px; }
+        .modal-scroll-area::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.08); 
+            border-radius: 10px;
+            border: 2px solid transparent; 
+            background-clip: padding-box;
+        }
+
+        .m-title { font-family: "Noto Sans SC", sans-serif; font-size: 28px; color: #1a1a1a; margin-bottom: 10px; letter-spacing: 0.02em; font-weight: 500; }
+        .m-subtitle { font-family: "Inter", sans-serif; font-size: 16px; font-weight: 410; color: #656464; letter-spacing: 0.02em; text-transform: uppercase; }
+        .m-divider { width: 30px; height: 1.5px; background: #7a7979; margin: 50px 0 50px 0; }
+        .m-text { font-family: "Noto Sans SC", sans-serif; font-weight: 350; font-size: 14px; line-height: 2.2; color: #393939; white-space: pre-wrap; margin-bottom: 60px; text-align: justify; -webkit-font-smoothing: antialiased; }
+        .en-font { font-family: "Inter", sans-serif; font-size: 13.5px; letter-spacing: -0.01em; color: #545454;}
+        .m-gallery { width: 100%; display: flex; flex-direction: column; gap: 40px; }
+        .m-gallery img { width: 100%; height: auto; display: block; }
+
+        b, strong { font-weight: 600; color: #111; }
+        b .en-font, .en-font b { font-family: 'Inter', sans-serif; font-weight: 600; }
+
+        /* 作品网格 */
+        #works-layer { width: 1366px; padding: 150px 0 10px; background-color: var(--bg-color); }
+        .works-section { width: 1206px; margin: 0 auto 40px; padding-bottom: 80px; }
+        .works-grid { display: grid; grid-template-columns: 270px 1fr 1fr 1fr; gap: 75px; align-items: start; }
+        .serif-title { font-weight: 500; font-size: 22.5px; color: #4A4A4A; margin: 0 0 10px 0; line-height: 1.1; text-transform: uppercase; letter-spacing: 1.4px; }
+        .subtitle { font-family: "Noto Sans SC", sans-serif; font-size: 16px; font-weight: 400; color: #9e9d9d; letter-spacing: 1.75px; margin: 0; }
+        .polaroid-img { width: 100%; height: auto; display: block; transition: 0.3s; cursor: pointer; }
+        .polaroid-img:hover { transform: translateY(-8px); }
+
+        /* 关于我 */
+        #about-layer { width: 1366px; padding: 70px 0 0; display: flex; justify-content: center; background-color: var(--bg-color); }        
+        .letter-paper {
+            width: 655px; 
+            background-color: rgb(248, 246, 246); 
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            padding: 85px 0 200px; /* 同步调大这个值，让格线在底部留出更多空白给小鸟 */
+            position: relative;            
+            box-shadow: 0 30px 60px rgba(0,0,0,0.04), 0 10px 20px rgba(0,0,0,0.02);           
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+        .letter-paper.open { opacity: 1; }
+        .letter-paper::before {
+            content: "";
+            position: absolute;
+            top: 85px; left: 80px; right: 80px; bottom: 180px; 
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 100% 50px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .about-me-poster { position: relative; z-index: 2; text-align: center; }
+        .text-line { height: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 0px; }
+        .text-ch { font-family: "Noto Serif SC", sans-serif; font-size: 15px; letter-spacing: 0.16em; color: #404040; margin: 0; font-weight: 300; line-height: 1; }
+        .text-en { font-family: "Special Elite", cursive; font-size: 13.2px; color: #7b7b7b; letter-spacing: 0.04em; margin: 8px 0 0 0; line-height: 1; }
+
+        #bird {
+        width: 225px; position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+        z-index: 10; pointer-events: none; transition: all 0.8s ease; opacity: 0;
+        }
+        .letter-paper.open #bird { opacity: 1; bottom: -4px; }
+
+        /* 版权与免责声明 */
+        .disclaimer-container {
+            width: 100%;
+            text-align: center;
+            padding: 60px 0 120px; 
+            margin-top: 45px; /* 向上微调，衔接信纸底部 */
+            position: relative;
+            z-index: 5;
+        }
+        .disclaimer-text {
+            font-size: 13px;
+            color: #7d7c7c;
+            margin: 6px 0;
+            letter-spacing: 0.5px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        .disclaimer-text.en-font {
+            font-family: "Inter", sans-serif;
+            font-size: 12px;
+            opacity: 0.75;
+        }
+
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="javascript:void(0)" onclick="scrollToSection(0)">HOME<span>主页</span></a>
+        <a href="javascript:void(0)" onclick="scrollToSection(1)">WORKS<span>作品集</span></a>
+        <a href="javascript:void(0)" onclick="scrollToSection(2)">ABOUT ME<span>关于我</span></a>
+    </nav>
+
+    <div id="work-modal" class="modal">
+        <div class="modal-content">
+            <div class="close-button" onclick="closeModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+            <div class="modal-scroll-area" id="modal-scroll-container">
+                <h2 id="modal-title" class="m-title"></h2>
+                <p id="modal-subtitle" class="m-subtitle"></p>
+                <div class="m-divider"></div>
+                <div id="modal-text-content" class="m-text"></div>
+                <div id="modal-image-gallery" class="m-gallery"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-wrapper">
+        <section id="stage">
+            <img src="images/base-layer.webp" id="base-layer">
+            <div class="clock-section">
+                <div id="clock">
+                    <div id="ticks-container"></div>
+                    <div class="hand hour" id="hour"></div>
+                    <div class="hand min" id="min"></div>
+                    <div class="hand sec" id="sec"></div>
+                </div>
+                <div id="date-display"></div>
+            </div>
+            <img src="images/music-note.webp" id="music-note" class="dynamic-element">
+            <img src="images/avatar.webp" id="avatar" class="dynamic-element">
+            <img src="images/portfolio-text.png" id="portfolio-text" class="dynamic-element">
+        </section>
+
+        <section id="works-layer">
+            <div class="works-section">
+                <div class="works-grid">
+                    <div class="section-intro"><h2 class="serif-title">CREATIVE<br>CONCEPT</h2><p class="subtitle">创意策划</p></div>
+                    <div class="work-item"><img src="images/1.webp" class="polaroid-img" onclick="openModal('1')"></div>
+                    <div class="work-item"><img src="images/2.webp" class="polaroid-img" onclick="openModal('2')"></div>
+                    <div></div>
+                </div>
+            </div>
+            <div class="works-section">
+                <div class="works-grid">
+                    <div class="section-intro"><h2 class="serif-title">DIGITAL<br>MARKETING</h2><p class="subtitle">数字营销</p></div>
+                    <div class="work-item"><img src="images/3.webp" class="polaroid-img" onclick="openModal('3')"></div>
+                    <div class="work-item"><img src="images/4.webp" class="polaroid-img" onclick="openModal('4')"></div>
+                    <div></div>
+                </div>
+            </div>
+            <div class="works-section">
+                <div class="works-grid">
+                    <div class="section-intro"><h2 class="serif-title">INTEGRATED<br>MARKETING</h2><p class="subtitle">整合营销</p></div>
+                    <div class="work-item"><img src="images/5.webp" class="polaroid-img" onclick="openModal('5')"></div>
+                    <div class="work-item"><img src="images/6.webp" class="polaroid-img" onclick="openModal('6')"></div>
+                    <div class="work-item"><img src="images/7.webp" class="polaroid-img" onclick="openModal('7')"></div>
+                </div>
+            </div>
+            <div class="works-section">
+                <div class="works-grid">
+                    <div class="section-intro"><h2 class="serif-title">NEW MEDIA<br>OPERATION</h2><p class="subtitle">新媒体运营</p></div>
+                    <div class="work-item"><img src="images/8.webp" class="polaroid-img" onclick="openModal('8')"></div>
+                    <div class="work-item"><img src="images/10.webp" class="polaroid-img" onclick="openModal('10')"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about-layer">
+            <div class="letter-paper" id="myLetter">
+                <div class="text-line"><p class="text-ch">感谢你路过我的旷野</p><p class="text-en">Thank you for stepping into my wilderness</p></div>
+                <div style="height: 50px;"></div>
+                <div class="text-line"><p class="text-ch">这里的每一个作品，都曾是我对世界的一次深度倾听与回响</p><p class="text-en">Every piece of work here is a profound echo of my listening to the world</p></div>
+                <div style="height: 50px;"></div>
+                <div class="text-line"><p class="text-ch">从音乐到文化娱乐，从艺术到教育</p><p class="text-en">From music and entertainment to art and education</p></div>
+                <div style="height: 50px;"></div>
+                <div class="text-line"><p class="text-ch">这些看似不连贯的切片，塑造了我的审美认知与职业素养</p><p class="text-en">These seemingly fragmented chapters shape my aesthetics and professionalism</p></div>
+                <div style="height: 50px;"></div>
+                <div class="text-line"><p class="text-ch">在感性的表达中构建逻辑，在理性的策略里体现温度</p><p class="text-en"> Logic within emotional expression, warmth into rational strategy</p></div>
+                <div style="height: 50px;"></div>
+                <div class="text-line"><p class="text-ch">期待在这片旷野与你相遇</p><p class="text-en">I look forward to our encounter in this wilderness</p></div>
+                <img src="images/bird.webp" id="bird" alt="Bird Sticker">
+            </div>
+        </section>
+
+        <div class="disclaimer-container">
+            <p class="disclaimer-text">
+                部分图片来自网络，版权归原作者及品牌方所有，本网页仅供个人展示使用
+            </p>
+            <p class="disclaimer-text en-font">
+                SOME IMAGES FROM WEB SOURCES; COPYRIGHTS BELONG TO ORIGINAL OWNERS. FOR DEMONSTRATION ONLY.
+            </p>
+        </div>
+    </div> <script>
+        const wrapper = document.getElementById('main-wrapper');
+        function handleResize() {
+            const winW = window.innerWidth;
+            const designW = 1366;
+            const scale = winW / designW; 
+            wrapper.style.transform = `translateX(-50%) scale(${scale})`;
+            document.body.style.height = (wrapper.offsetHeight * scale) + 'px';
+        }
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('load', handleResize);
+        setTimeout(handleResize, 300);
+
+        function scrollToSection(index) {
+            const winW = window.innerWidth;
+            const scale = winW / 1366;
+            let targetY = 0;
+            if(index === 1) targetY = 768 * scale;
+            if(index === 2) targetY = (768 + document.getElementById('works-layer').offsetHeight) * scale;
+            window.scrollTo({ top: targetY, behavior: 'smooth' });
+        }
+
+        const ticksContainer = document.getElementById('ticks-container');
+        for (let i = 0; i < 12; i++) {
+            const tick = document.createElement('div');
+            tick.className = 'tick';
+            tick.style.transform = `translateX(-50%) rotate(${i * 30}deg)`;
+            ticksContainer.appendChild(tick);
+        }
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('hour').style.transform = `translateX(-50%) rotate(${(now.getHours() % 12) * 30 + now.getMinutes() * 0.5}deg)`;
+            document.getElementById('min').style.transform = `translateX(-50%) rotate(${now.getMinutes() * 6}deg)`;
+            document.getElementById('sec').style.transform = `translateX(-50%) rotate(${now.getSeconds() * 6}deg)`;
+            document.getElementById('date-display').innerText = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('open'); });
+        }, { threshold: 0.2 });
+        observer.observe(document.getElementById('myLetter'));
+
+        const projectsData = {
+            "1": { title: "北京CBD音乐季", subtitle: "MUSIC IN CBD", file: "data/1.txt", images: ["images/1-1.webp"] },
+            "2": { title: "爱奇艺音综《音乐野生活》", subtitle: "iQIYI Reality Show Back to Field (Music Season)", file: "data/2.txt" },
+            "3": { title: "SFK线上毕业作品展", subtitle: "SFK Online Graduation Exhibition", file: "data/3.txt", images: ["images/3-3.webp"] },
+            "4": { title: "弹壳《披荆斩棘》营销策划", subtitle: "Marketing Strategy for Danko: Call Me by Fire S3", file: "data/4.txt", images: ["images/4-4.webp"] },
+            "5": { title: "SFK国际艺术教育展", subtitle: "SFK International Art Education Exhibition", file: "data/5.txt", images: ["images/5-5.webp"] },
+            "6": { title: "优酷人文雅集", subtitle: "Youku Humanities Gathering", file: "data/6.txt", images: ["images/6-6.webp"] },
+            "7": { title: "优酷会员", subtitle: "Youku Member", file: "data/7.txt", images: ["images/7-7.webp"] },
+            "8": { title: "公众号 UMIVERSE ", subtitle: "Wechat Official Account Umiverse", file: "data/8.txt", images: ["images/8-8.webp"] },
+            "10": { title: "公众号 芒果妈妈", subtitle: "Wechat Official Account Mango Mama", file: "data/10.txt" }
+        };
+
+        async function openModal(id) {
+            const data = projectsData[id];
+            if(!data) return;
+
+            const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.paddingRight = scrollBarWidth + 'px';
+            document.documentElement.style.overflow = 'hidden';
+
+            const scrollArea = document.getElementById('modal-scroll-container');
+            document.getElementById('modal-title').innerText = data.title;
+            document.getElementById('modal-subtitle').innerText = data.subtitle;
+            
+            const textContainer = document.getElementById('modal-text-content');
+            textContainer.innerText = "Loading..."; 
+
+            try {
+                const response = await fetch(data.file);
+                let text = await response.text(); 
+                let htmlContent = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                const enRegex = /([A-Za-z0-9\s\.,!?;:'"\[\]\(\)-]+)(?![^<]*>)/g; 
+                htmlContent = htmlContent.replace(enRegex, `<span class="en-font">$1</span>`);
+                textContainer.innerHTML = htmlContent;
+            } catch (err) { 
+                textContainer.innerText = "内容加载失败"; 
+            }
+
+            const gallery = document.getElementById('modal-image-gallery');
+            gallery.innerHTML = ''; 
+            if (data.images) {
+                data.images.forEach(src => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    gallery.appendChild(img);
+                });
+            }
+
+            document.getElementById('work-modal').style.display = 'block';
+            if(scrollArea) scrollArea.scrollTop = 0;
+        }
+
+        function closeModal() {
+            document.getElementById('work-modal').style.display = 'none';
+            document.documentElement.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+    </script>
+
+
+    <div style="display:none;">
+
+        <!-- 1. 投喂给 Noto Sans SC (黑体) -->
+        <div style="font-family: 'Noto Sans SC'; font-weight: 300;">
+        **一、项目背景**
+        作为北京CBD国际商务季的核心板块之一，北京CBD音乐季旨在以音乐为媒介，提升区域文化氛围，赋能商圈消费生态，打造CBD活力新磁极。
+
+        **二、核心创意**
+        拉近古典音乐与大众的距离，让音乐走进城市日常，让生活成为流动的舞台。
+
+        携手吕思清、秦立巍等国际顶级音乐家，将高品质音乐演出引入城市空间，制造不期而遇的音乐现场；合作钢琴品牌The One，在商圈落地音乐角，赋能商圈消费；联动媒体传播创意内容，提振CBD艺术文化声量；组建CBD合唱团，通过音乐服务与人才建设，形成可持续的社区文化生态。
+
+        **三、项目成果**
+        现象级传播：开幕音乐会联合人民日报、新华社，全网直播观看量200万+；
+
+        演出新场景：落地10场+城市音乐演出，涵盖CBD数字会客厅·元宇宙音乐会、今日美术馆·奇梦幻境音乐会、银泰中心新空间音乐会、CBD咖啡青年节·阿卡贝拉音乐路演等；
+
+        创意内容破圈：合作京港地铁14号线，发布创意短片《北京CBD音乐季律动14号线商业带》；中国日报、新京报、三联生活周刊等主流媒体深度报道，全网观看量7.6万+。
+
+        **一、项目背景**
+        《向往的生活》“田野音乐会”特辑播出后反响热烈。作为吕思清老师的经纪方，我们与综艺团队萌生了开发一档原创音乐综艺的想法，并从音乐角度提供了完整的创意思路。
+
+        **二、核心创意** 
+        我们惯于用视觉和味觉去描述一座城，却忽略了每座城都有自己的呼吸——那些我们习以为常，却后知后觉，在另一座城市不会再听到的声音。
+
+        声音采集： 捕捉地方传统音乐、街边叫卖、市井烟火等城市特色声音碎片，串联集体记忆，重构地域文化的听觉叙事。
+
+        跨界共生： 邀请古典音乐家、流行音乐人与城市飞行嘉宾，共同寻找声音碎片，创作城市主题曲，打造城市新文化IP。
+
+        街头快闪： 成员突袭街头上演即兴音乐会，致敬城市中每一位努力生活的普通人，“今天你也辛苦了”。
+
+        **三、项目成果**
+        创意获得《向往的生活》团队与爱奇艺平台的高度认可，并成功入选2022年爱奇艺片单，但受制于疫情与招商环境，项目遗憾未能制作上线。
+
+        **一、项目背景**
+        结合SFK夏季国际艺术教育展，打造线上学生毕业作品展，提升存量用户黏性，触达潜在留学客群，夯实品牌专业认知，放大品牌声量。
+
+        **二、核心策略**
+        活动机制设计：采用“作品展示+每日限额投票+先锋创作人评选”的组合机制，鼓励学生参与报名，激励亲友持续拉票，形成社交裂变，同时控制刷票风险。
+
+        传播机制构建：公众号发布活动预告与评选结果，建立信息触达广度；小程序活动页展示学员作品，生成专属投票海报，降低分享门槛。借助私域传播，触达潜在留学群体，实现“信任传递 → 留资 → 转化”的闭环。
+
+        创意主题企划：2024年主题“我向艺术的告白”，聚焦青年创作者个体情感与自我表达；2025年主题“经纬之间”，回应艺术教育跨学科发展趋势。主题贯穿主视觉、投票海报及衍生物料，提升品牌识别与情感共鸣。
+
+        **三、项目成果**
+        活动参与人数200+，投票人数4w+。
+
+        **一、项目背景**
+        说唱歌手弹壳参加芒果TV综艺《披荆斩棘》第三季。比赛期间，借助节目曝光，通过精准挖掘艺人舞台亮点与性格魅力，打造高热话题，助力艺人破圈扩声。
+
+        **二、核心策略**
+        传播形象定位：基于艺人粉丝画像与节目受众分层，反向锚定“三位一体”艺人形象。核心圈层强化专业硬实力，次核心圈层塑造社交亲和力，大众圈层输出反差萌与生活化特质。同一人设，分层透传。
+
+        传播内容设计：针对不同圈层设计差异化传播看点。说唱粉需要“崇拜感”，以高光舞台和业务能力固粉；节目粉需要“关系共情”，以成员间温情互动实现粉丝转化；大众需要“亲近感”，以幽默和生活化片段拉近距离。由内向外，逐级破圈。
+
+        创意物料企划：每期从舞台表演、后台花絮、社交互动中抓取高光帧与情绪点。官号打造艺宣类创意海报；KOL矩阵输出表情包、叠字图、动图等轻物料助推传播。形成“素材提取 - 话题预埋 - 物料分层发放 - 热搜破圈”标准化传播闭环。
+
+        **三、项目成果**
+        项目周期内，艺人相关话题累计登上全网热搜42+次，全网话题讨论量42w+。
+
+
+        **一、项目背景**
+        SFK国际艺术教育展于每年春、夏、秋三季于全国12座城市巡回开启，通过“讲座+咨询+学生作品展”的形式，叠加多重签约福利，加速客户决策，推动现场签约转化。
+
+        **二、核心策略**
+        差异化活动运营：基于各分校客户资源与签约数据，定制差异化活动方案与阶梯式预算，精准控制ROI，提升签约转化率。
+
+        痛点式内容设计：围绕市场趋势、客户留咨痛点及SFK学员录取案例，拆解留学需求，制定专题讲座，实现精准答疑。以就业为抓手，邀请百度、阿里、完美世界等行业精英及SFK大厂校友，构建“艺术留学-实习-就业”闭环对话场景。
+
+        全渠道传播矩阵：公众号+官网深度拆解展会亮点与到场价值，建立专业信任；小程序发布活动邀约，开放大咖及院校代表咨询报名，沉淀高意向线索；小红书+抖音+视频号以年轻化内容精准触达目标圈层，放大活动声量。
+
+        **三、项目成果**
+        全国活动参与人数4000+，签约总金额6000w+。
+
+
+        **一、项目背景**
+        优酷深耕人文赛道11年，是全网“第一”和“唯一”深耕文化频道的平台。11周年之际，打造文化领域出圈事件，深化“看文化人物 上优酷”的品牌心智。
+
+        **二、核心策略**
+        线下：绑定北京网络视听艺术大会，联动站内人文IP资源，打造“优酷人文雅集”。围绕“看见风雅、看见历史、看见女性、看见文学”四大主题板块，邀请单霁翔、陈铭、刘仪伟、鸟鸟等14位文化人物齐聚通州水畔，共话人文新篇。
+
+        线上：预热期，以人文内核输出创意物料。主题人物海报打造优酷人文排面，回顾短片《需要人文的理由》以 15+ IP节目金句串联11年人文记忆；爆发期，预埋话题切中大众情绪。嘉宾金句海报定格高光发言时刻；主题访谈视频回应网络热议，输出人文新见解。
+
+        **三、项目成果**
+        20家党央媒体、8家行业媒体深度报道，13家大V齐发声。微博相关传播话题累计阅读量 2000w+，互动量2w+。
+
+        话题 #鸟鸟说亲密关系就像自己和猫的相处# 登微博热搜主榜上升趋势，相关提问登知乎热榜TOP18。
+
+        预热短片《需要人文的理由》登全网排行榜热搜榜TOP3，抖音产出小爆款视频（点赞3.3w）。
+
+
+        **一、项目背景**
+        长视频平台会员市场激烈竞争，优酷致力于打造会员节日IP，通过线下月度主题活动+线上创意事件话题传播，联动微博、抖音、小红书KOL输出爆款内容，强化会员“权益+福利+体验”三大核心价值，夯实“超值”品牌心智，促进用户拉新与转化。
+
+        **二、核心策略**
+        9月：联动站内爆款IP《异人之下》，携手江西龙虎山鹰潭文旅，打造优酷SVIP会员“龙虎特邀体验团”。定制化游览路线、国风旅拍、名场面打卡等特色玩法，丰富会员追剧体验。现场预埋抖音小网红与天师互动事件，借势IP进行话题传播，提升品牌曝光。
+
+        11月：配合优酷片单发布及《甄嬛传》播出12周年，线上开启《甄嬛传》限时免费看，线下联动甄嬛传特展，打造优酷会员“甄学家”观展团。明星主创见面会、限定周边伴手礼、甄学家数字徽章等独家礼遇，强化会员身份标识。
+
+        12月：联动《TimeOut 北京》和5大雪场，推出“酷爱生活企划”。5大雪场门票免费领，还可享温暖礼包、热「雪」大片、限定特饮，打造冬日专属会员福利。
+
+        **三、项目成果**
+        微博话题 #优酷SVIP会员尊享日# 阅读量5000w+，互动量4w+。
+
+        话题 #优酷11月片单# 登微博热搜主榜第7位。
+
+
+        **一、项目背景**
+        Umiverse 是一家位于迪拜的国际教育机构，汇聚全球优质资源，业务涵盖多语种学习、K12学业辅导、国际研学、留学规划及全球赛事平台，已与UNESCO、巴黎南泰尔大学、科大讯飞等多家国际机构及企业建立合作。作为兼职，为其运营公众号。
+
+        **二、核心策略**
+        结合品牌动态和业务内容，采用AI生成高质量配图，替代传统图库素材。以统一的视觉语言强化品牌调性，提升用户点击意愿与阅读体验。
+
+        **一、项目背景**
+        芒果妈妈是微博、微信及抖音平台拥有百万粉丝的娱乐KOL，账号以发布影视综艺相关内容为主。2018年1月-4月，作为兼职公众号编辑，参与文章选题策划、内容撰写及粉丝留言互动。
+
+        **二、核心策略&成果**
+        紧跟时下热点话题，撰写深度稿件，以观点引发大众共鸣，提升文章阅读量与用户粘性，驱动粉丝转化。
+
+        **三、项目成果**
+        所撰写的公众号推文阅读量达1万+，同步发布的微博内容阅读量达10万+。
+        </div>
+
+        <div style="font-family: 'Noto Sans SC'; font-weight: 400;">
+        北京CBD音乐季
+        爱奇艺音综《音乐野生活》
+        SFK线上毕业作品展
+        弹壳《披荆斩棘》营销策划
+        优酷人文雅集
+        优酷会员
+        公众号 Umiverse
+        公众号 芒果妈妈
+
+        </div>
+
+
+    </div>
+
+</body>
+</html>
